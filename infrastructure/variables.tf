@@ -13,7 +13,7 @@ variable "project_name" {
 variable "db_instance_class" {
   description = "RDS instance class"
   type        = string
-  default     = "db.t3.micro"
+  default     = "db.t4g.micro"
 }
 
 variable "db_name" {
@@ -72,4 +72,22 @@ variable "dockerhub_username" {
 variable "alert_email" {
   description = "Email address for alerts"
   type        = string
+}
+
+variable "use_cost_optimized" {
+  description = "Use cost-optimized configuration"
+  type        = bool
+  default     = false
+}
+
+variable "use_ultra_cheap" {
+  description = "Use ultra-cheap configuration (EC2 + minimal RDS)"
+  type        = bool
+  default     = false
+}
+
+variable "key_pair_name" {
+  description = "EC2 Key Pair name"
+  type        = string
+  default     = ""
 }
