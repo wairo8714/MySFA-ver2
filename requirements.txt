@@ -1,0 +1,4 @@
+Pillow
+Django>=5.0,<5.1
+mysqlclient
+whitenoise
