@@ -1,5 +1,6 @@
 services:
     app:
+        image: mysfa_ver2:latest
         build:
             context: .
             dockerfile: docker/Dockerfile

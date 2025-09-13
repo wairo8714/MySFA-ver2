@@ -1,0 +1,60 @@
+{
+  "family": "mysfa-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/mysfa-ecs-execution-role",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/mysfa-ecs-task-role",
+  "containerDefinitions": [
+    {
+      "name": "mysfa-container",
+      "image": "ACCOUNT_ID.dkr.ecr.ap-northeast-1.amazonaws.com/mysfa-ver2:latest",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "MYSQL_HOST",
+          "value": "mysfa-mysql.cluster-xxxxx.ap-northeast-1.rds.amazonaws.com"
+        },
+        {
+          "name": "MYSQL_PORT",
+          "value": "3306"
+        },
+        {
+          "name": "MYSQL_DATABASE",
+          "value": "mysfa_db"
+        },
+        {
+          "name": "MYSQL_USER",
+          "value": "admin"
+        },
+        {
+          "name": "SECRET_KEY",
+          "value": "your-secret-key-here"
+        },
+        {
+          "name": "DEBUG",
+          "value": "False"
+        },
+        {
+          "name": "ALLOWED_HOSTS",
+          "value": "*"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mysfa",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
