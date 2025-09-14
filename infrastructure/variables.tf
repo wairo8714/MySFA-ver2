@@ -5,89 +5,13 @@ variable "aws_region" {
 }
 
 variable "project_name" {
-  description = "Name of the project"
+  description = "Project name"
   type        = string
   default     = "mysfa"
 }
 
-variable "db_instance_class" {
-  description = "RDS instance class"
+variable "instance_type" {
+  description = "EC2 instance type"
   type        = string
-  default     = "db.t4g.micro"
-}
-
-variable "db_name" {
-  description = "Database name"
-  type        = string
-  default     = "mysfa_db"
-}
-
-variable "db_username" {
-  description = "Database username"
-  type        = string
-  default     = "admin"
-}
-
-variable "db_password" {
-  description = "Database password"
-  type        = string
-  sensitive   = true
-}
-
-variable "secret_key" {
-  description = "Django secret key"
-  type        = string
-  sensitive   = true
-}
-
-variable "allowed_hosts" {
-  description = "Django allowed hosts"
-  type        = string
-  default     = "*"
-}
-
-variable "ecs_cpu" {
-  description = "ECS task CPU"
-  type        = number
-  default     = 256
-}
-
-variable "ecs_memory" {
-  description = "ECS task memory"
-  type        = number
-  default     = 512
-}
-
-variable "ecs_desired_count" {
-  description = "ECS service desired count"
-  type        = number
-  default     = 1
-}
-
-variable "dockerhub_username" {
-  description = "DockerHub username"
-  type        = string
-}
-
-variable "alert_email" {
-  description = "Email address for alerts"
-  type        = string
-}
-
-variable "use_cost_optimized" {
-  description = "Use cost-optimized configuration"
-  type        = bool
-  default     = false
-}
-
-variable "use_ultra_cheap" {
-  description = "Use ultra-cheap configuration (EC2 + minimal RDS)"
-  type        = bool
-  default     = false
-}
-
-variable "key_pair_name" {
-  description = "EC2 Key Pair name"
-  type        = string
-  default     = ""
+  default     = "t3.micro"
 }

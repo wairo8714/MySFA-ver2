@@ -1,136 +1,189 @@
-# MySFA Ver2
+# MySFA - 営業支援システム
 
-Django + MySQL + Docker + AWS で構築されたSFAアプリケーション
+![Django](https://img.shields.io/badge/Django-5.0.14-green)
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![AWS](https://img.shields.io/badge/AWS-EC2-orange)
+![Docker](https://img.shields.io/badge/Docker-Container-blue)
+![HTTPS](https://img.shields.io/badge/HTTPS-Let's%20Encrypt-green)
 
-## 🚀 技術スタック
+## 🌟 概要
 
-- **Backend**: Django 5.0
-- **Database**: MySQL 8.0
-- **Container**: Docker + Docker Compose
-- **Cloud**: AWS (ECS Fargate + RDS)
-- **CI/CD**: GitHub Actions
-- **Infrastructure**: Terraform
-- **Monitoring**: CloudWatch
+MySFAは営業チーム向けのWebアプリケーションです。顧客管理、商品管理、チーム管理機能を提供し、営業活動の効率化を支援します。
 
-## 📋 機能
+**デモサイト**: [https://mysfa.net](https://mysfa.net)
 
-- ユーザー認証・登録
-- グループ管理
-- 投稿・タイムライン機能
-- 画像アップロード
-- 検索機能
+## ✨ 主な機能
 
-## 🛠️ 開発環境セットアップ
+- **ユーザー管理**: アカウント作成、ログイン、プロフィール管理
+- **顧客管理**: 顧客情報の登録・検索・編集
+- **商品管理**: 商品情報の管理
+- **チーム管理**: グループ作成、メンバー管理
+- **投稿機能**: 営業活動の記録・共有
+- **検索機能**: 顧客・商品・ユーザーの検索
 
-### 1. リポジトリのクローン
+## 🛠️ 技術スタック
+
+### フロントエンド
+- **HTML5/CSS3**: レスポンシブデザイン
+- **JavaScript**: インタラクティブなUI
+- **Bootstrap**: モダンなUIコンポーネント
+
+### バックエンド
+- **Django 5.0.14**: Webフレームワーク
+- **Python 3.12**: プログラミング言語
+- **SQLite**: データベース（開発環境）
+- **WhiteNoise**: 静的ファイル配信
+
+### インフラストラクチャ
+- **AWS EC2**: クラウドサーバー
+- **Docker**: コンテナ化
+- **Nginx**: リバースプロキシ・SSL終端
+- **Let's Encrypt**: SSL証明書
+- **Route 53**: DNS管理
+
+### 開発・運用
+- **GitHub Actions**: CI/CD
+- **Terraform**: Infrastructure as Code
+- **Docker Compose**: ローカル開発環境
+
+## 🚀 セットアップ
+
+### 前提条件
+- Python 3.12+
+- Docker & Docker Compose
+- AWS CLI
+- Terraform
+
+### ローカル開発環境
+
+1. **リポジトリのクローン**
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourusername/mysfa_rebuild.git
 cd mysfa_rebuild
 ```
 
-### 2. 環境変数の設定
+2. **Docker Composeで起動**
 ```bash
-cp .env.example .env
-# .envファイルを編集して必要な値を設定
+docker-compose up -d
 ```
 
-### 3. Dockerで起動
-```bash
-docker-compose up --build
-```
-
-### 4. データベースマイグレーション
+3. **データベースマイグレーション**
 ```bash
 docker-compose exec app python manage.py migrate
 ```
 
-### 5. スーパーユーザー作成
+4. **スーパーユーザー作成**
 ```bash
 docker-compose exec app python manage.py createsuperuser
 ```
 
-## 🧪 テスト実行
-
-```bash
-# Linter実行
-flake8 src/
-black --check src/
-isort --check-only src/
-
-# テスト実行
-cd src
-python manage.py test
+5. **アプリケーションにアクセス**
+```
+http://localhost:8000
 ```
 
-## 🚀 デプロイ
+### 本番環境デプロイ
 
-### AWSインフラストラクチャの構築
-
-1. Terraformの初期化
+1. **Terraformでインフラ構築**
 ```bash
 cd infrastructure
 terraform init
-```
-
-2. 変数の設定
-```bash
-cp terraform.tfvars.example terraform.tfvars
-# terraform.tfvarsを編集
-```
-
-3. インフラストラクチャのデプロイ
-```bash
 terraform plan
 terraform apply
 ```
 
-### GitHub Actions設定
-
-1. GitHubリポジトリのSecrets設定
-   - `DOCKERHUB_USERNAME`: DockerHubのユーザー名
-   - `DOCKERHUB_TOKEN`: DockerHubのアクセストークン
-   - `AWS_ACCESS_KEY_ID`: AWSアクセスキー
-   - `AWS_SECRET_ACCESS_KEY`: AWSシークレットキー
-
-2. プッシュで自動デプロイ
+2. **アプリケーションのデプロイ**
 ```bash
-git push origin main
+./deploy.sh
 ```
 
-## 📊 監視
-
-- CloudWatch Dashboardでメトリクス監視
-- SNSでアラート通知
-- ログはCloudWatch Logsで管理
-
-## 🔒 セキュリティ
-
-- HTTPS強制（本番環境）
-- セキュリティヘッダー設定
-- 環境変数での機密情報管理
-- 非rootユーザーでのコンテナ実行
-
-## 📁 プロジェクト構成
+## 📁 プロジェクト構造
 
 ```
 mysfa_rebuild/
 ├── src/                    # Djangoアプリケーション
 │   ├── accounts/          # ユーザー管理
-│   ├── mysfa/            # メインアプリ
-│   ├── config/           # 設定
-│   ├── static/           # 静的ファイル
-│   ├── template/         # テンプレート
-│   └── media/            # メディアファイル
-├── infrastructure/        # Terraform設定
+│   ├── mysfa/             # メインアプリケーション
+│   ├── config/            # 設定ファイル
+│   ├── static/            # 静的ファイル
+│   ├── template/          # テンプレート
+│   └── manage.py          # Django管理スクリプト
+├── infrastructure/        # インフラ設定
+│   ├── main.tf           # Terraform設定
+│   └── variables.tf      # 変数定義
 ├── docker/               # Docker設定
-├── .github/workflows/    # CI/CD設定
-└── requirements.txt      # Python依存関係
+│   └── Dockerfile        # コンテナ定義
+├── .github/              # GitHub Actions
+│   └── workflows/        # CI/CD設定
+└── README.md             # このファイル
 ```
 
-## 🐳 Docker Hub
+## 🔧 開発
 
-イメージ名: `mysfa_ver2:latest`
+### テスト実行
+```bash
+python src/manage.py test
+python src/manage.py check
+```
+
+### コードフォーマット
+```bash
+black src/
+isort src/
+flake8 src/
+```
+
+### データベースリセット
+```bash
+python src/manage.py flush
+python src/manage.py migrate
+```
+
+## 🌐 デプロイメント
+
+### 自動デプロイ
+- `main`ブランチへのプッシュで自動デプロイ
+- GitHub Actionsがテスト→ビルド→デプロイを実行
+
+### 手動デプロイ
+```bash
+./deploy.sh
+```
+
+## 🔒 セキュリティ
+
+- **HTTPS**: Let's Encrypt SSL証明書
+- **セキュリティヘッダー**: Django Security Middleware
+- **CSRF保護**: Django CSRF Middleware
+- **XSS保護**: Django XSS Protection
+
+## 📊 監視・ログ
+
+- **Nginx アクセスログ**: `/var/log/nginx/access.log`
+- **Django アプリケーションログ**: `django.log`
+- **SSL証明書**: 自動更新設定済み
+
+## 🤝 貢献
+
+1. このリポジトリをフォーク
+2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
+3. 変更をコミット (`git commit -m 'Add some amazing feature'`)
+4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
+5. プルリクエストを作成
 
 ## 📝 ライセンス
 
-MIT License
+このプロジェクトはMITライセンスの下で公開されています。
+
+## 📞 連絡先
+
+- **GitHub**: [@yourusername](https://github.com/yourusername)
+- **Email**: your.email@example.com
+- **Website**: [https://mysfa.net](https://mysfa.net)
+
+## 🙏 謝辞
+
+- Django Community
+- AWS
+- Let's Encrypt
+- オープンソースコミュニティ
