@@ -589,7 +589,8 @@ class SalesReportView(View):
                     created_at__date__lte=end_date,
                 )
                 print(
-                    f"Found {posts.count()} posts in group {group_id} between {start_date} and {end_date}"
+                    f"Found {posts.count()} posts in group {group_id} "
+                    f"between {start_date} and {end_date}"
                 )
             except Group.DoesNotExist:
                 print(f"Group {group_id} not found")
@@ -610,7 +611,9 @@ class SalesReportView(View):
                             created_at__date__lte=end_date,
                         )
                         print(
-                            f"Found {posts.count()} posts by user {user_id} in group {selected_group_id} between {start_date} and {end_date}"
+                            f"Found {posts.count()} posts by user {user_id} "
+                            f"in group {selected_group_id} between "
+                            f"{start_date} and {end_date}"
                         )
                     except Group.DoesNotExist:
                         print(f"Selected group {selected_group_id} not found")
@@ -627,7 +630,9 @@ class SalesReportView(View):
                         created_at__date__lte=end_date,
                     )
                     print(
-                        f"Found {posts.count()} posts from user's groups {[g.name for g in user_groups]} between {start_date} and {end_date}"
+                        f"Found {posts.count()} posts from user's groups "
+                        f"{[g.name for g in user_groups]} between "
+                        f"{start_date} and {end_date}"
                     )
 
             except CustomUser.DoesNotExist:
@@ -639,7 +644,8 @@ class SalesReportView(View):
 
         for post in posts:
             print(
-                f"Processing post {post.id}: {post.product_name} - {post.customer_category} - {post.created_at}"
+                f"Processing post {post.id}: {post.product_name} - "
+                f"{post.customer_category} - {post.created_at}"
             )
 
             if post.product_name:

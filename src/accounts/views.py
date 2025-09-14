@@ -132,11 +132,13 @@ class DeleteAccountView(View):
         try:
             if user.is_authenticated:
                 logger.info(
-                    f"User is authenticated, custom_user_id: {getattr(user, 'custom_user_id', 'Not found')}"
+                    f"User is authenticated, custom_user_id: "
+                    f"{getattr(user, 'custom_user_id', 'Not found')}"
                 )
                 fresh_user = CustomUser.objects.get(custom_user_id=user.custom_user_id)
                 logger.info(
-                    f"Fresh user retrieved: {type(fresh_user)}, ID: {fresh_user.custom_user_id}"
+                    f"Fresh user retrieved: {type(fresh_user)}, "
+                    f"ID: {fresh_user.custom_user_id}"
                 )
             else:
                 logger.info("User is not authenticated")
@@ -157,7 +159,8 @@ class DeleteAccountView(View):
         logger.info(f"Final context user: {type(context['user'])}")
         if context["user"]:
             logger.info(
-                f"Final user ID: {getattr(context['user'], 'custom_user_id', 'Not found')}"
+                f"Final user ID: "
+                f"{getattr(context['user'], 'custom_user_id', 'Not found')}"
             )
 
         return render(request, "registration/delete_account.html", context)
@@ -176,11 +179,13 @@ class DeleteAccountView(View):
         try:
             if user.is_authenticated:
                 logger.info(
-                    f"POST - User is authenticated, custom_user_id: {getattr(user, 'custom_user_id', 'Not found')}"
+                    f"POST - User is authenticated, custom_user_id: "
+                    f"{getattr(user, 'custom_user_id', 'Not found')}"
                 )
                 fresh_user = CustomUser.objects.get(custom_user_id=user.custom_user_id)
                 logger.info(
-                    f"POST - Fresh user retrieved: {type(fresh_user)}, ID: {fresh_user.custom_user_id}"
+                    f"POST - Fresh user retrieved: {type(fresh_user)}, "
+                    f"ID: {fresh_user.custom_user_id}"
                 )
             else:
                 logger.info("POST - User is not authenticated")
@@ -196,7 +201,8 @@ class DeleteAccountView(View):
         logger.info(f"User fields: {[field.name for field in fresh_user._meta.fields]}")
         logger.info(f"Password field exists: {hasattr(fresh_user, 'password1')}")
         logger.info(
-            f"Password1 field value: {getattr(fresh_user, 'password1', 'Not found')}"
+            f"Password1 field value: "
+            f"{getattr(fresh_user, 'password1', 'Not found')}"
         )
         logger.info(
             f"Standard password field exists: {hasattr(fresh_user, 'password')}"
