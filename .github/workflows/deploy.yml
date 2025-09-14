@@ -42,13 +42,20 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-northeast-1
     
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+    
     - name: Deploy to EC2
       run: |
         # ファイルをEC2にアップロード
-        scp -i ${{ secrets.SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no -r src/ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
+        scp -o StrictHostKeyChecking=no -r src/ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
         
         # Dockerイメージを再ビルド
-        ssh -i ${{ secrets.SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "cd /home/ec2-user && sudo docker build -t mysfa-app ."
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "cd /home/ec2-user && sudo docker build -t mysfa-app ."
         
         # Dockerコンテナを再起動
-        ssh -i ${{ secrets.SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo docker stop mysfa-app && sudo docker rm mysfa-app && sudo docker run -d --name mysfa-app -p 8000:8000 -e ALLOWED_HOSTS=${{ secrets.EC2_HOST }},mysfa.net mysfa-app"
+        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo docker stop mysfa-app && sudo docker rm mysfa-app && sudo docker run -d --name mysfa-app -p 8000:8000 -e ALLOWED_HOSTS=${{ secrets.EC2_HOST }},mysfa.net mysfa-app"
