@@ -25,18 +25,32 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+        
+        # SSH接続テスト
+        echo "Testing SSH connection..."
+        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'"
     
     - name: Deploy to EC2
       run: |
+        echo "Starting deployment to EC2..."
+        
         # ファイルをEC2にアップロード
-        scp -o StrictHostKeyChecking=no -r src/ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
+        echo "Uploading files..."
+        scp -o StrictHostKeyChecking=no -o ConnectTimeout=10 -r src/ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
+        echo "File upload completed"
         
         # Dockerイメージを再ビルド
-        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "cd /home/ec2-user && sudo docker build -t mysfa-app ."
+        echo "Building Docker image..."
+        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "cd /home/ec2-user && sudo docker build -t mysfa-app ."
+        echo "Docker build completed"
         
         # Dockerコンテナを再起動
-        ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} "sudo docker stop mysfa-app || true && sudo docker rm mysfa-app || true && sudo docker run -d --name mysfa-app -p 8000:8000 -e ALLOWED_HOSTS=${{ secrets.EC2_HOST }},mysfa.net mysfa-app"
+        echo "Restarting Docker container..."
+        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "sudo docker stop mysfa-app || true && sudo docker rm mysfa-app || true && sudo docker run -d --name mysfa-app -p 8000:8000 -e ALLOWED_HOSTS=${{ secrets.EC2_HOST }},mysfa.net mysfa-app"
+        echo "Container restart completed"
         
         # ヘルスチェック
+        echo "Performing health check..."
         sleep 10
         curl -f https://mysfa.net || echo "Deployment completed but health check failed"
+        echo "Deployment completed successfully!"
