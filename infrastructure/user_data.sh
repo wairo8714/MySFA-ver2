@@ -17,6 +17,7 @@ usermod -a -G docker ec2-user
 # Docker Compose インストール
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
 # Nginx インストール
 yum install -y nginx
@@ -52,8 +53,8 @@ services:
     environment:
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
-      - MYSQL_DATABASE=${mysql_database:-mysfa_db}
-      - MYSQL_USER=${mysql_user:-admin}
+      - MYSQL_DATABASE=${mysql_database}
+      - MYSQL_USER=${mysql_user}
       - MYSQL_PASSWORD=${mysql_password}
       - SECRET_KEY=${secret_key}
       - DEBUG=False
@@ -70,10 +71,10 @@ services:
   db:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=${mysql_root_password:-rootpassword}
-      - MYSQL_USER=${mysql_user:-admin}
+      - MYSQL_ROOT_PASSWORD=${mysql_root_password}
+      - MYSQL_USER=${mysql_user}
       - MYSQL_PASSWORD=${mysql_password}
-      - MYSQL_DATABASE=${mysql_database:-mysfa_db}
+      - MYSQL_DATABASE=${mysql_database}
     ports:
       - "127.0.0.1:3306:3306"
     volumes:

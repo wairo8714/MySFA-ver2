@@ -12,9 +12,9 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # 設定
-EC2_HOST="43.207.66.4"
+EC2_HOST="13.115.53.188"
 SSH_KEY="infrastructure/mysfa-dev-keypair"
-ALLOWED_HOSTS="43.207.66.4,mysfa.net"
+ALLOWED_HOSTS="13.115.53.188,mysfa.net"
 
 echo -e "${GREEN}MySFA デプロイを開始します...${NC}"
 
@@ -22,17 +22,10 @@ echo -e "${GREEN}MySFA デプロイを開始します...${NC}"
 echo -e "${YELLOW}ファイルをアップロード中...${NC}"
 scp -i $SSH_KEY -o StrictHostKeyChecking=no -r src/ docker/ requirements.txt ec2-user@$EC2_HOST:/home/ec2-user/
 
-# 2. Dockerイメージを再ビルド
-echo -e "${YELLOW}Dockerイメージを再ビルド中...${NC}"
-ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "cd /home/ec2-user && sudo docker build -f docker/Dockerfile -t mysfa-app ."
-
-# 3. 既存のコンテナを停止・削除
-echo -e "${YELLOW}既存のコンテナを停止中...${NC}"
-ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "sudo docker stop mysfa-app || true && sudo docker rm mysfa-app || true"
-
-# 4. 新しいコンテナを起動
-echo -e "${YELLOW}新しいコンテナを起動中...${NC}"
-ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "sudo docker run -d --name mysfa-app -p 127.0.0.1:8000:8000 -e ALLOWED_HOSTS=$ALLOWED_HOSTS mysfa-app"
+# 2. Docker Composeでアプリケーションを起動
+echo -e "${YELLOW}Docker Composeでアプリケーションを起動中...${NC}"
+ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "cd /home/ec2-user && sudo docker-compose down || true"
+ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "cd /home/ec2-user && sudo docker-compose up -d --build"
 
 # 5. ヘルスチェック
 echo -e "${YELLOW}🔍 ヘルスチェック中...${NC}"
