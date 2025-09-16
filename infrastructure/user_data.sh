@@ -38,26 +38,51 @@ firewall-cmd --reload
 # アプリケーション設定
 cat > /home/ec2-user/docker-compose.yml << EOF
 version: '3.8'
+
 services:
   app:
     image: ${dockerhub_username}/mysfa_ver2:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     ports:
       - "127.0.0.1:8000:8000"
+    volumes:
+      - ./src:/app
     environment:
-      - MYSQL_HOST=${mysql_host}
+      - MYSQL_HOST=db
       - MYSQL_PORT=3306
-      - MYSQL_DATABASE=mysfa_db
-      - MYSQL_USER=admin
+      - MYSQL_DATABASE=${mysql_database:-mysfa_db}
+      - MYSQL_USER=${mysql_user:-admin}
       - MYSQL_PASSWORD=${mysql_password}
       - SECRET_KEY=${secret_key}
       - DEBUG=False
       - ALLOWED_HOSTS=${allowed_hosts}
+    depends_on:
+      - db
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${mysql_root_password:-rootpassword}
+      - MYSQL_USER=${mysql_user:-admin}
+      - MYSQL_PASSWORD=${mysql_password}
+      - MYSQL_DATABASE=${mysql_database:-mysfa_db}
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  db_data:
 EOF
 
 # Nginx設定
@@ -136,6 +161,14 @@ EOF
 # アプリケーション起動
 cd /home/ec2-user
 docker-compose up -d
+
+# データベースの初期化待機
+echo "データベースの初期化を待機中..."
+sleep 30
+
+# データベースマイグレーション
+echo "データベースマイグレーションを実行中..."
+docker-compose exec -T app python manage.py migrate
 
 # アプリケーション起動待機
 echo "アプリケーション起動を待機中..."

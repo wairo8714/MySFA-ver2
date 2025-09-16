@@ -36,12 +36,15 @@ resource "aws_instance" "main" {
   vpc_security_group_ids = [aws_security_group.main.id]
 
   user_data = templatefile("${path.module}/user_data.sh", {
-    dockerhub_username = var.dockerhub_username
-    mysql_host        = var.mysql_host
-    mysql_password    = var.mysql_password
-    secret_key        = var.secret_key
-    allowed_hosts     = var.allowed_hosts
-    domain_name       = var.domain_name
+    dockerhub_username  = var.dockerhub_username
+    mysql_host         = var.mysql_host
+    mysql_database     = var.mysql_database
+    mysql_user         = var.mysql_user
+    mysql_password     = var.mysql_password
+    mysql_root_password = var.mysql_root_password
+    secret_key         = var.secret_key
+    allowed_hosts      = var.allowed_hosts
+    domain_name        = var.domain_name
   })
 
   tags = {

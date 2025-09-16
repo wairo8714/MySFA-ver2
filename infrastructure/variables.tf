@@ -36,11 +36,30 @@ variable "mysql_host" {
   default     = "localhost"
 }
 
+variable "mysql_database" {
+  description = "MySQL database name"
+  type        = string
+  default     = "mysfa_db"
+}
+
+variable "mysql_user" {
+  description = "MySQL user"
+  type        = string
+  default     = "admin"
+}
+
 variable "mysql_password" {
   description = "MySQL password"
   type        = string
   sensitive   = true
   default     = "your-secure-password"
+}
+
+variable "mysql_root_password" {
+  description = "MySQL root password"
+  type        = string
+  sensitive   = true
+  default     = "your-root-password"
 }
 
 variable "secret_key" {
