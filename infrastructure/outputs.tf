@@ -13,7 +13,22 @@ output "security_group_id" {
   value       = aws_security_group.main.id
 }
 
-output "application_url" {
-  description = "URL to access the application"
-  value       = "http://${aws_instance.main.public_ip}:8000"
+output "application_url_https" {
+  description = "HTTPS URL to access the application"
+  value       = "https://${var.domain_name}"
+}
+
+output "application_url_http" {
+  description = "HTTP URL to access the application (redirects to HTTPS)"
+  value       = "http://${var.domain_name}"
+}
+
+output "application_url_ip" {
+  description = "Direct IP access URL (for testing)"
+  value       = "https://${aws_instance.main.public_ip}"
+}
+
+output "ami_id" {
+  description = "AMI ID used for the instance"
+  value       = data.aws_ami.amazon_linux.id
 }

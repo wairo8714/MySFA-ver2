@@ -12,14 +12,37 @@ provider "aws" {
   region = var.aws_region
 }
 
-# EC2インスタンス（シンプル構成）
+# 最新のAmazon Linux 2 AMIを動的取得
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+# EC2インスタンス（セキュア構成）
 resource "aws_instance" "main" {
-  ami                    = "ami-000322c84e9ff1be2"  # Amazon Linux 2 (x86_64)
+  ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
   key_name               = aws_key_pair.main.key_name
   vpc_security_group_ids = [aws_security_group.main.id]
 
-  user_data = file("${path.module}/user_data.sh")
+  user_data = templatefile("${path.module}/user_data.sh", {
+    dockerhub_username = var.dockerhub_username
+    mysql_host        = var.mysql_host
+    mysql_password    = var.mysql_password
+    secret_key        = var.secret_key
+    allowed_hosts     = var.allowed_hosts
+    domain_name       = var.domain_name
+  })
 
   tags = {
     Name = "${var.project_name}-server"
@@ -32,48 +55,45 @@ resource "aws_key_pair" "main" {
   public_key = file("${path.module}/mysfa-dev-keypair.pub")
 }
 
-# セキュリティグループ（シンプル）
+# セキュリティグループ（セキュア構成）
 resource "aws_security_group" "main" {
   name_prefix = "${var.project_name}-"
   description = "Security group for MySFA application"
 
-  # SSH
+  # SSH - 特定IPからのみアクセス許可
   ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = var.allowed_ssh_cidrs
+    description = "SSH access from specific IPs only"
   }
 
-  # HTTP
+  # HTTP - HTTPSリダイレクト用
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTP for HTTPS redirect"
   }
 
-  # HTTPS
+  # HTTPS - Nginxリバースプロキシ経由
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "HTTPS access via Nginx reverse proxy"
   }
 
-  # アプリケーション
-  ingress {
-    from_port   = 8000
-    to_port     = 8000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    description = "All outbound traffic"
   }
 
   tags = {

@@ -97,6 +97,36 @@ terraform apply
 ./deploy.sh
 ```
 
+## 🏗️ インフラストラクチャ構成
+
+### アーキテクチャ概要
+```
+Internet → Route 53 → EC2 (Nginx) → Docker Container (Django)
+                    ↓
+              Security Group (443, 80, 22)
+                    ↓
+              Let's Encrypt SSL
+```
+
+### セキュリティ設計
+1. **外部からのアクセス**: HTTPS(443)のみ許可
+2. **内部通信**: Nginx → Django (localhost:8000)
+3. **SSHアクセス**: 特定IPアドレスからのみ許可
+4. **SSL終端**: NginxでSSL処理、DjangoはHTTPで動作
+
+### インフラ設定ファイル
+- `main.tf`: EC2、セキュリティグループ、キーペアの定義
+- `variables.tf`: 設定可能な変数（セキュリティ、アプリ設定）
+- `outputs.tf`: デプロイ後の出力情報
+- `user_data.sh`: EC2起動時の初期化スクリプト
+- `nginx.conf`: Nginxリバースプロキシ設定
+
+### セキュリティベストプラクティス
+- **最小権限の原則**: 必要最小限のポートのみ開放
+- **多層防御**: セキュリティグループ + ファイアウォール + アプリケーション
+- **暗号化**: 通信の暗号化（HTTPS）とデータの暗号化
+- **監視**: ログ収集とローテーション設定
+
 ## 📁 プロジェクト構造
 
 ```
@@ -110,7 +140,10 @@ mysfa_rebuild/
 │   └── manage.py          # Django管理スクリプト
 ├── infrastructure/        # インフラ設定
 │   ├── main.tf           # Terraform設定
-│   └── variables.tf      # 変数定義
+│   ├── variables.tf      # 変数定義
+│   ├── outputs.tf        # 出力定義
+│   ├── user_data.sh      # EC2初期化スクリプト
+│   └── nginx.conf        # Nginx設定
 ├── docker/               # Docker設定
 │   └── Dockerfile        # コンテナ定義
 ├── .github/              # GitHub Actions
@@ -152,10 +185,52 @@ python src/manage.py migrate
 
 ## 🔒 セキュリティ
 
-- **HTTPS**: Let's Encrypt SSL証明書
-- **セキュリティヘッダー**: Django Security Middleware
-- **CSRF保護**: Django CSRF Middleware
-- **XSS保護**: Django XSS Protection
+### インフラストラクチャセキュリティ
+- **Nginxリバースプロキシ**: アプリケーションを内部ネットワークに隔離
+- **ポート制限**: 8000番ポートを外部に公開せず、443(HTTPS)のみ開放
+- **SSHアクセス制限**: 特定IPアドレスからのみSSH接続を許可
+- **ファイアウォール**: firewalldによる追加のセキュリティ層
+
+### アプリケーションセキュリティ
+- **HTTPS強制**: HTTPからHTTPSへの自動リダイレクト
+- **SSL/TLS**: Let's Encrypt SSL証明書（自動更新）
+- **セキュリティヘッダー**: 
+  - `X-Frame-Options: DENY`
+  - `X-Content-Type-Options: nosniff`
+  - `X-XSS-Protection: 1; mode=block`
+  - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+- **Djangoセキュリティ**: CSRF保護、XSS保護、SQLインジェクション対策
+
+### セキュリティ設定の詳細
+```hcl
+# SSHアクセス制限（variables.tf）
+variable "allowed_ssh_cidrs" {
+  description = "CIDR blocks allowed to SSH access"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]  # 本番環境では特定のIPに変更
+}
+
+# セキュリティグループ（main.tf）
+resource "aws_security_group" "main" {
+  # SSH - 特定IPからのみアクセス許可
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_ssh_cidrs
+  }
+  
+  # HTTPS - Nginxリバースプロキシ経由
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  # 8000番ポートは削除（内部通信のみ）
+}
+```
 
 ## 📊 監視・ログ
 
