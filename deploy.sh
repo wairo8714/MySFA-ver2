@@ -12,9 +12,9 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # 設定
-EC2_HOST="13.115.53.188"
+EC2_HOST="54.199.78.127"
 SSH_KEY="infrastructure/mysfa-dev-keypair"
-ALLOWED_HOSTS="13.115.53.188,mysfa.net"
+ALLOWED_HOSTS="54.199.78.127,mysfa.net"
 
 echo -e "${GREEN}MySFA デプロイを開始します...${NC}"
 
@@ -37,6 +37,6 @@ if curl -f -s https://mysfa.net > /dev/null; then
 else
     echo -e "${RED}デプロイに失敗しました${NC}"
     echo -e "${YELLOW}ログを確認してください:${NC}"
-    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "sudo docker logs mysfa-app"
+    ssh -i $SSH_KEY -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "sudo docker logs ec2-user-app-1"
     exit 1
 fi

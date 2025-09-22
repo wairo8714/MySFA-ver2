@@ -32,3 +32,8 @@ output "ami_id" {
   description = "AMI ID used for the instance"
   value       = data.aws_ami.amazon_linux.id
 }
+
+output "elastic_ip" {
+  description = "Elastic IP address"
+  value       = aws_eip.main.public_ip
+}

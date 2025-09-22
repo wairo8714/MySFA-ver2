@@ -208,7 +208,8 @@ class DeleteAccountView(View):
             f"Standard password field exists: {hasattr(fresh_user, 'password')}"
         )
         logger.info(
-            f"Standard password field value: {getattr(fresh_user, 'password', 'Not found')}"
+            f"Standard password field value: "
+            f"{getattr(fresh_user, 'password', 'Not found')}"
         )
 
         password_verified = False
@@ -264,7 +265,8 @@ class DeleteAccountView(View):
 
         if password_verified:
             logger.info(
-                f"Password verification successful for user: {fresh_user.custom_user_id}"
+                f"Password verification successful for user: "
+                f"{fresh_user.custom_user_id}"
             )
             try:
                 logger.info(f"About to delete user: {fresh_user.custom_user_id}")
@@ -281,7 +283,8 @@ class DeleteAccountView(View):
                     )
                 except CustomUser.DoesNotExist:
                     logger.info(
-                        f"User {fresh_user.custom_user_id} confirmed deleted from database"
+                        f"User {fresh_user.custom_user_id} "
+                        f"confirmed deleted from database"
                     )
 
                 request.session.flush()
@@ -294,7 +297,8 @@ class DeleteAccountView(View):
                 return render(request, "registration/delete_account.html")
         else:
             logger.warning(
-                f"All password verification methods failed for user: {fresh_user.custom_user_id}"
+                f"All password verification methods failed for user: "
+                f"{fresh_user.custom_user_id}"
             )
 
             context = {
