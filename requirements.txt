@@ -1,6 +1,6 @@
 Pillow
 Django>=5.0,<5.1
-mysqlclient
+mysqlclient>=2.0
 whitenoise
 python-dotenv
 
