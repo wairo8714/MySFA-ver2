@@ -55,6 +55,37 @@ jobs:
             sleep 2
           done
 
+      - name: Show Python and Django versions
+        run: |
+          python --version
+          which python
+          pip --version
+          pip freeze
+          cd src
+          python -m django --version || echo "Django未インストール"
+
+      - name: Show requirements.txt
+        run: cat requirements.txt || echo "requirements.txtがありません"
+
+      - name: Check MySQL server status
+        run: |
+          sudo netstat -tlnp | grep 3306 || echo "3306番ポートが開いていません"
+          ps aux | grep mysql
+
+      - name: List src directory files
+        run: ls -l src || echo "srcディレクトリがありません"
+
+      - name: Show Django migrations status (on failure)
+        if: failure()
+        run: |
+          cd src
+          python manage.py showmigrations || echo "showmigrations失敗"
+
+      - name: Show MySQL error log (on failure)
+        if: failure()
+        run: |
+          docker logs $(docker ps -q --filter "ancestor=mysql:8.0")
+
       - name: Run tests
         env:
           SECRET_KEY: test-secret-key
