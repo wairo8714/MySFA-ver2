@@ -10,49 +10,46 @@ jobs:
     if: github.ref == 'refs/heads/main'
     
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-1
-    
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-    
-    - name: Add EC2 to known hosts
-      run: |
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-        
-        # SSH接続テスト
-        echo "Testing SSH connection..."
-        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'"
-    
-    - name: Deploy to EC2
-      run: |
-        echo "Starting deployment to EC2..."
-        
-        # ファイルをEC2にアップロード
-        echo "Uploading files..."
-        scp -o StrictHostKeyChecking=no -o ConnectTimeout=10 -r src/ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/
-        echo "File upload completed"
-        
-        # Dockerイメージを再ビルド
-        echo "Building Docker image..."
-        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "cd /home/ec2-user && sudo docker build -t mysfa-app ."
-        echo "Docker build completed"
-        
-        # Dockerコンテナを再起動
-        echo "Restarting Docker container..."
-        ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "sudo docker stop mysfa-app || true && sudo docker rm mysfa-app || true && sudo docker run -d --name mysfa-app -p 8000:8000 -e ALLOWED_HOSTS=${{ secrets.EC2_HOST }},mysfa.net mysfa-app"
-        echo "Container restart completed"
-        
-        # ヘルスチェック
-        echo "Performing health check..."
-        sleep 10
-        curl -f https://mysfa.net || echo "Deployment completed but health check failed"
-        echo "Deployment completed successfully!"
+      - uses: actions/checkout@v3
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add EC2 to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          
+          # SSH接続テスト
+          echo "Testing SSH connection..."
+          ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'" || { echo "SSH接続に失敗しました"; exit 1; }
+
+      - name: Deploy to EC2
+        run: |
+          set -x
+          echo "Starting deployment to EC2..."
+
+          echo "Uploading files..."
+          scp -v -o StrictHostKeyChecking=no -o ConnectTimeout=10 -r src/ ec2-user@${{ secrets.EC2_HOST }}:/home/ec2-user/ || { echo "SCP失敗"; exit 1; }
+          echo "File upload completed"
+
+          echo "Building Docker image..."
+          ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "ls -l /home/ec2-user && sudo docker build -t mysfa-app ." || { echo "Docker build失敗"; exit 1; }
+          echo "Docker build completed"
+
+          echo "Restarting Docker container..."
+          ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "sudo docker stop mysfa-app || true && sudo docker rm mysfa-app || true && sudo docker run -d --name mysfa-app -p 8000:8000 -e ALLOWED_HOSTS=${{ secrets.EC2_HOST }},mysfa.net mysfa-app" || { echo "Container restart失敗"; exit 1; }
+          echo "Container restart completed"
+
+          echo "Performing health check..."
+          sleep 10
+          curl -v -f https://mysfa.net || { echo "Deployment completed but health check failed"; exit 1; }
+          echo "Deployment completed successfully!"
