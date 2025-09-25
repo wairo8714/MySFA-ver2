@@ -27,10 +27,21 @@ jobs:
       - name: Add EC2 to known hosts
         run: |
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-          
-          # SSH接続テスト
-          echo "Testing SSH connection..."
-          ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'" || { echo "SSH接続に失敗しました"; exit 1; }
+
+      - name: Test SSH connection with debugging
+        run: |
+          ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=10 ec2-user@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'" || {
+            echo "❌ SSH接続に失敗しました"
+            echo "🔐 known_hostsの内容:"
+            cat ~/.ssh/known_hosts || echo "known_hostsが見つかりません"
+            echo "🗝️ SSH Agentに登録されている鍵:"
+            ssh-add -l || echo "鍵が登録されていません"
+            echo "🌐 接続先: ${{ secrets.EC2_HOST }}"
+            echo "👤 SSHユーザー: ec2-user"
+            echo "📡 GitHub Actions RunnerのIP:"
+            curl -s http://checkip.amazonaws.com || echo "IP取得失敗"
+            exit 1
+          }
 
       - name: Deploy to EC2
         run: |
