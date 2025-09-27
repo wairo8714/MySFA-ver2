@@ -11,7 +11,10 @@ class MySFATestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
-            username="testuser", email="test@example.com", password="testpass123"
+            username="testuser", 
+            email="test@example.com", 
+            password="testpass123",
+            custom_user_id="testuser"
         )
         self.client.login(username="testuser", password="testpass123")
 
@@ -24,21 +27,27 @@ class MySFATestCase(TestCase):
     def test_user_registration(self):
         """ユーザー登録が正常に動作することをテスト"""
         response = self.client.post(
-            reverse("signup"),
+            reverse("accounts:signup"),
             {
-                "username": "newuser",
-                "email": "newuser@example.com",
+                "custom_user_id": "newuser",
                 "password1": "newpass123",
                 "password2": "newpass123",
             },
         )
         self.assertEqual(response.status_code, 302)  # リダイレクト
-        self.assertTrue(User.objects.filter(username="newuser").exists())
+        self.assertTrue(User.objects.filter(custom_user_id="newuser").exists())
 
     def test_post_creation(self):
         """投稿作成が正常に動作することをテスト"""
+        # グループを作成してから投稿を作成
+        group = Group.objects.create(
+            name="Test Group",
+            description="Test description",
+            created_by=self.user,
+            custom_id="test123"
+        )
         response = self.client.post(
-            reverse("create_post"),
+            reverse("mysfa:group_posts", kwargs={"custom_id": group.custom_id}),
             {"title": "Test Post", "content": "This is a test post"},
         )
         self.assertEqual(response.status_code, 302)  # リダイレクト
@@ -47,7 +56,7 @@ class MySFATestCase(TestCase):
     def test_group_creation(self):
         """グループ作成が正常に動作することをテスト"""
         response = self.client.post(
-            reverse("create_group"),
+            reverse("mysfa:create_group"),
             {"name": "Test Group", "description": "This is a test group"},
         )
         self.assertEqual(response.status_code, 302)  # リダイレクト
