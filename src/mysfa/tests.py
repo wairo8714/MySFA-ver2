@@ -29,9 +29,12 @@ class MySFATestCase(TestCase):
         response = self.client.post(
             reverse("accounts:signup"),
             {
+                "username": "newuser",
                 "custom_user_id": "newuser",
                 "password1": "newpass123",
                 "password2": "newpass123",
+                "question": "Test question",
+                "answer": "Test answer",
             },
         )
         self.assertEqual(response.status_code, 302)  # リダイレクト
@@ -42,22 +45,25 @@ class MySFATestCase(TestCase):
         # グループを作成してから投稿を作成
         group = Group.objects.create(
             name="Test Group",
-            description="Test description",
-            created_by=self.user,
+            creator=self.user,
             custom_id="test123",
         )
         response = self.client.post(
             reverse("mysfa:group_posts", kwargs={"custom_id": group.custom_id}),
-            {"title": "Test Post", "content": "This is a test post"},
+            {
+                "product_name": "Test Product",
+                "customer_category": "Test Category",
+                "contents": "This is a test post"
+            },
         )
         self.assertEqual(response.status_code, 302)  # リダイレクト
-        self.assertTrue(Post.objects.filter(title="Test Post").exists())
+        self.assertTrue(Post.objects.filter(product_name="Test Product").exists())
 
     def test_group_creation(self):
         """グループ作成が正常に動作することをテスト"""
         response = self.client.post(
             reverse("mysfa:create_group"),
-            {"name": "Test Group", "description": "This is a test group"},
+            {"name": "Test Group"},
         )
         self.assertEqual(response.status_code, 302)  # リダイレクト
         self.assertTrue(Group.objects.filter(name="Test Group").exists())
