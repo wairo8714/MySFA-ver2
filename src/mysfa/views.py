@@ -231,8 +231,13 @@ class GroupPost(LoginRequiredMixin, ListView):
         if "delete_post_id" in request.POST:
             post_id = request.POST.get("delete_post_id")
             post = get_object_or_404(Post, id=post_id, user=request.user)
+            if post.image:
+                post.image.delete(save=False)
             post.delete()
             return redirect("mysfa:group_posts", custom_id=self.kwargs["custom_id"])
+        
+        # その他のPOSTリクエストはGETビューを呼び出し
+        return self.get(request, *args, **kwargs)
 
 
 @method_decorator(login_required, name="dispatch")

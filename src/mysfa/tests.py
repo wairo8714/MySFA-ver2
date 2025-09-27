@@ -48,12 +48,17 @@ class MySFATestCase(TestCase):
             creator=self.user,
             custom_id="test123",
         )
+        # ユーザーをグループに追加
+        group.users.add(self.user)
+        self.user.groups.add(group)
+        
         response = self.client.post(
-            reverse("mysfa:group_posts", kwargs={"custom_id": group.custom_id}),
+            reverse("mysfa:timeline"),
             {
                 "product_name": "Test Product",
                 "customer_category": "Test Category",
                 "contents": "This is a test post",
+                "group": group.id,
             },
         )
         self.assertEqual(response.status_code, 302)  # リダイレクト
