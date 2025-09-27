@@ -11,8 +11,8 @@ class MySFATestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
-            username="testuser", 
-            email="test@example.com", 
+            username="testuser",
+            email="test@example.com",
             password="testpass123",
             custom_user_id="testuser"
         )
