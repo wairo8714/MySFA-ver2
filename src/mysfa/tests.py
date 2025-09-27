@@ -14,7 +14,7 @@ class MySFATestCase(TestCase):
             username="testuser",
             email="test@example.com",
             password="testpass123",
-            custom_user_id="testuser"
+            custom_user_id="testuser",
         )
         self.client.login(username="testuser", password="testpass123")
 
@@ -44,7 +44,7 @@ class MySFATestCase(TestCase):
             name="Test Group",
             description="Test description",
             created_by=self.user,
-            custom_id="test123"
+            custom_id="test123",
         )
         response = self.client.post(
             reverse("mysfa:group_posts", kwargs={"custom_id": group.custom_id}),
