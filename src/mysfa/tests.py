@@ -53,7 +53,7 @@ class MySFATestCase(TestCase):
             {
                 "product_name": "Test Product",
                 "customer_category": "Test Category",
-                "contents": "This is a test post"
+                "contents": "This is a test post",
             },
         )
         self.assertEqual(response.status_code, 302)  # リダイレクト
