@@ -235,7 +235,7 @@ class GroupPost(LoginRequiredMixin, ListView):
                 post.image.delete(save=False)
             post.delete()
             return redirect("mysfa:group_posts", custom_id=self.kwargs["custom_id"])
-        
+
         # その他のPOSTリクエストはGETビューを呼び出し
         return self.get(request, *args, **kwargs)
 

@@ -51,7 +51,7 @@ class MySFATestCase(TestCase):
         # ユーザーをグループに追加
         group.users.add(self.user)
         self.user.groups.add(group)
-        
+
         response = self.client.post(
             reverse("mysfa:timeline"),
             {
