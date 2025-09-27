@@ -91,7 +91,7 @@ jobs:
           mysql -h 127.0.0.1 -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'test_user'@'%'; FLUSH PRIVILEGES;"
 
           - name: Run linters and auto-fix
-          run: |
+            run: |
             # 自動フォーマット適用
             black src/ --line-length 88
             isort src/ --profile black
