@@ -38,6 +38,16 @@ jobs:
           # SSH鍵の形式を確認
           echo "🔍 SSH鍵の形式確認:"
           ssh-keygen -y -f ~/.ssh/id_rsa | head -1
+          
+          # SSH鍵の詳細情報
+          echo "🔧 SSH鍵の詳細:"
+          file ~/.ssh/id_rsa
+          ls -la ~/.ssh/id_rsa
+          
+          # 公開鍵の生成テスト
+          echo "🔑 公開鍵生成テスト:"
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+          cat ~/.ssh/id_rsa.pub
 
       - name: Add EC2 to known hosts
         run: |
