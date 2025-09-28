@@ -35,7 +35,7 @@ resource "aws_instance" "main" {
   key_name               = aws_key_pair.main.key_name
   vpc_security_group_ids = [aws_security_group.main.id]
 
-  user_data = templatefile("${path.module}/user_data.sh", {
+  user_data = templatefile("${path.module}/../config/user_data.sh", {
     dockerhub_username  = var.dockerhub_username
     mysql_host         = var.mysql_host
     mysql_database     = var.mysql_database
@@ -55,7 +55,7 @@ resource "aws_instance" "main" {
 # キーペア
 resource "aws_key_pair" "main" {
   key_name   = "${var.project_name}-keypair"
-  public_key = file("${path.module}/mysfa-dev-keypair.pub")
+  public_key = file("${path.module}/../keys/mysfa-dev-keypair.pub")
 }
 
 # セキュリティグループ（セキュア構成）

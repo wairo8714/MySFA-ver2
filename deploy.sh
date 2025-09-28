@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # 設定
 EC2_HOST="54.199.78.127"
-SSH_KEY="infrastructure/mysfa-dev-keypair"
+SSH_KEY="infrastructure/keys/mysfa-dev-keypair"
 ALLOWED_HOSTS="54.199.78.127,mysfa.net"
 
 echo -e "${GREEN}MySFA デプロイを開始します...${NC}"

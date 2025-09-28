@@ -139,11 +139,16 @@ mysfa_rebuild/
 │   ├── template/          # テンプレート
 │   └── manage.py          # Django管理スクリプト
 ├── infrastructure/        # インフラ設定
-│   ├── main.tf           # Terraform設定
-│   ├── variables.tf      # 変数定義
-│   ├── outputs.tf        # 出力定義
-│   ├── user_data.sh      # EC2初期化スクリプト
-│   └── nginx.conf        # Nginx設定
+│   ├── terraform/        # Terraform設定
+│   │   ├── main.tf       # メイン設定
+│   │   ├── variables.tf  # 変数定義
+│   │   ├── outputs.tf    # 出力定義
+│   │   └── terraform.tfvars # 変数値
+│   ├── keys/             # SSH鍵
+│   │   └── mysfa-dev-keypair*
+│   └── config/           # 設定ファイル
+│       ├── user_data.sh  # EC2初期化スクリプト
+│       └── nginx.conf    # Nginx設定
 ├── docker/               # Docker設定
 │   └── Dockerfile        # コンテナ定義
 ├── .github/              # GitHub Actions
