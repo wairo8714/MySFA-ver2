@@ -266,4 +266,4 @@ resource "aws_security_group" "main" {
 - Django Community
 - AWS
 - Let's Encrypt
-- オープンソースコミュニティ
+- オープンソースコミュニティ# SSH_PRIVATE_KEY fix attempt
