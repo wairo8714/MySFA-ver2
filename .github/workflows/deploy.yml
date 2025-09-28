@@ -21,6 +21,9 @@ jobs:
 
       - name: Setup SSH with debugging
         run: |
+          # .sshディレクトリの存在確認と作成
+          mkdir -p ~/.ssh
+          
           # SSH鍵を直接ファイルに書き込み
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
