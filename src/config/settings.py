@@ -62,7 +62,7 @@ DATABASES = {
         "NAME": os.getenv("MYSQL_DATABASE", "mysfa_db"),
         "USER": os.getenv("MYSQL_USER", "admin"),
         "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
-        "HOST": os.getenv("MYSQL_HOST", "127.0.0.1"),
+        "HOST": os.getenv("MYSQL_HOST", "mysql"),
         "PORT": os.getenv("MYSQL_PORT", "3306"),
         "OPTIONS": {
             "charset": "utf8mb4",
