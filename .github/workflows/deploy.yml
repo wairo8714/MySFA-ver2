@@ -48,6 +48,15 @@ jobs:
           echo "🔑 公開鍵生成テスト:"
           ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
           cat ~/.ssh/id_rsa.pub
+          
+          # 公開鍵のSHA256ハッシュを確認
+          echo "🔐 公開鍵のSHA256ハッシュ:"
+          ssh-keygen -y -f ~/.ssh/id_rsa | ssh-keygen -lf -
+          
+          # 現在のEC2の公開鍵と比較
+          echo "🔍 EC2の公開鍵と比較:"
+          echo "EC2に登録されている公開鍵:"
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_HOST }} "cat ~/.ssh/authorized_keys" || echo "EC2接続失敗"
 
       - name: Add EC2 to known hosts
         run: |
